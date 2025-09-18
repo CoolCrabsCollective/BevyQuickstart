@@ -2,10 +2,10 @@
 use bevy::app::{App, PluginGroup};
 use bevy::asset::AssetMetaCheck;
 use bevy::prelude::*;
-use bevy::render::render_resource::{AddressMode, FilterMode};
-use bevy::render::texture::{ImageAddressMode, ImageFilterMode, ImageSamplerDescriptor};
-use bevy::render::RenderPlugin;
 use bevy::DefaultPlugins;
+use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSamplerDescriptor};
+use bevy::render::render_resource::{AddressMode, FilterMode};
+use bevy::render::RenderPlugin;
 
 fn main() {
     let mut app = App::new();
@@ -42,6 +42,7 @@ fn main() {
                 .set(RenderPlugin {
                     render_creation: Default::default(),
                     synchronous_pipeline_compilation: false,
+                    debug_flags: Default::default()
                 })
                 .set(ImagePlugin { default_sampler }),
         );
