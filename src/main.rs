@@ -1,11 +1,15 @@
+mod game;
+mod mesh_loader;
 
+use crate::game::GamePlugin;
+use crate::mesh_loader::MeshLoaderPlugin;
 use bevy::app::{App, PluginGroup};
 use bevy::asset::AssetMetaCheck;
-use bevy::prelude::*;
-use bevy::DefaultPlugins;
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSamplerDescriptor};
+use bevy::prelude::*;
 use bevy::render::render_resource::{AddressMode, FilterMode};
 use bevy::render::RenderPlugin;
+use bevy::DefaultPlugins;
 
 fn main() {
     let mut app = App::new();
@@ -42,11 +46,13 @@ fn main() {
                 .set(RenderPlugin {
                     render_creation: Default::default(),
                     synchronous_pipeline_compilation: false,
-                    debug_flags: Default::default()
+                    debug_flags: Default::default(),
                 })
                 .set(ImagePlugin { default_sampler }),
         );
     }
+    app.add_plugins(MeshLoaderPlugin);
+    app.add_plugins(GamePlugin);
 
     app.run();
 }
