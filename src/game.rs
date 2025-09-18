@@ -1,3 +1,4 @@
+use crate::debug_camera_controller::DebugCameraControllerPlugin;
 use crate::mesh_loader::{self, load_level, GLTFLoadConfig, MeshLoader};
 use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
@@ -16,11 +17,13 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_state(GameState::TitleScreen);
         app.add_systems(Startup, setup.after(mesh_loader::setup));
+
         /*app.add_systems(
             Update,
             (cycle_cubemap_asset, asset_loaded.after(cycle_cubemap_asset)),
         );*/
         app.add_plugins((
+            DebugCameraControllerPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default().disabled(),
         ))

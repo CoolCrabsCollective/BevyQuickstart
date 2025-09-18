@@ -1,3 +1,4 @@
+mod debug_camera_controller;
 mod game;
 mod mesh_loader;
 
