@@ -1,9 +1,9 @@
 mod debug_camera_controller;
-mod game;
 mod mesh_loader;
+mod scene_loader;
 
-use crate::game::GamePlugin;
 use crate::mesh_loader::MeshLoaderPlugin;
+use crate::scene_loader::SceneLoaderPlugin;
 use bevy::app::{App, PluginGroup};
 use bevy::asset::AssetMetaCheck;
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSamplerDescriptor};
@@ -53,7 +53,7 @@ fn main() {
             }),
     );
     app.add_plugins(MeshLoaderPlugin);
-    app.add_plugins(GamePlugin);
+    app.add_plugins(SceneLoaderPlugin);
 
     app.run();
 }
