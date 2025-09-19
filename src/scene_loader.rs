@@ -5,6 +5,7 @@ use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use bevy::render::render_resource::{TextureViewDescriptor, TextureViewDimension};
 use bevy_rapier3d::prelude::*;
+use bevy_water::{WaterPlugin, WaterSettings};
 
 pub struct SceneLoaderPlugin;
 
@@ -23,12 +24,17 @@ impl Plugin for SceneLoaderPlugin {
 
         app.add_systems(Update, asset_loaded);
         app.add_plugins((
+            WaterPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default().disabled(),
         ))
         .add_systems(Update, debug_render_toggle)
         .insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)))
-        .insert_resource(DirectionalLightShadowMap { size: 4096 });
+        .insert_resource(DirectionalLightShadowMap { size: 4096 })
+        .insert_resource(WaterSettings {
+            height: 0.0,
+            ..default()
+        });
     }
 }
 
