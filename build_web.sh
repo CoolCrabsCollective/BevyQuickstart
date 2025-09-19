@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # crate_name=cargo tree --depth 0 | awk '{print $1;}'
 rm -rf ./out
 cargo build --release --target wasm32-unknown-unknown

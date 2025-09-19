@@ -9,7 +9,7 @@ use bevy::asset::AssetMetaCheck;
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSamplerDescriptor};
 use bevy::prelude::*;
 use bevy::render::render_resource::{AddressMode, FilterMode};
-use bevy::render::RenderPlugin;
+use bevy::window::{CursorGrabMode, CursorOptions};
 use bevy::DefaultPlugins;
 
 fn main() {
@@ -24,34 +24,34 @@ fn main() {
         mipmap_filter: ImageFilterMode::from(FilterMode::Linear),
         ..default()
     };
-    if cfg!(target_arch = "wasm32") {
-        app.add_plugins(
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        fit_canvas_to_parent: true,
-                        title: "Bevy Quickstart Game".to_string(),
+
+    let is_web = cfg!(target_arch = "wasm32");
+    app.add_plugins(
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    fit_canvas_to_parent: true,
+                    title: "Bevy Quickstart Game".to_string(),
+                    cursor_options: CursorOptions {
+                        visible: true,
+                        // note this bug: https://github.com/bevyengine/bevy/issues/16237
+                        grab_mode: CursorGrabMode::None,
                         ..default()
-                    }),
+                    },
                     ..default()
-                })
-                .set(AssetPlugin {
-                    meta_check: AssetMetaCheck::Never,
-                    ..default()
-                })
-                .set(ImagePlugin { default_sampler }),
-        );
-    } else {
-        app.add_plugins(
-            DefaultPlugins
-                .set(RenderPlugin {
-                    render_creation: Default::default(),
-                    synchronous_pipeline_compilation: false,
-                    debug_flags: Default::default(),
-                })
-                .set(ImagePlugin { default_sampler }),
-        );
-    }
+                }),
+                ..default()
+            })
+            .set(ImagePlugin { default_sampler })
+            .set(AssetPlugin {
+                meta_check: if is_web {
+                    AssetMetaCheck::Never
+                } else {
+                    Default::default()
+                },
+                ..default()
+            }),
+    );
     app.add_plugins(MeshLoaderPlugin);
     app.add_plugins(GamePlugin);
 

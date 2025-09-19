@@ -111,7 +111,7 @@ fn setup(
             // renders after / on top of the main camera
             order: 1,
             // don't clear the color while rendering this camera
-            clear_color: ClearColorConfig::None,
+            clear_color: ClearColorConfig::Default,
             ..default()
         },
         Projection::Perspective(PerspectiveProjection {
@@ -142,16 +142,6 @@ fn setup(
         &mut asset_server,
         &mut mesh_loader,
     );
-}
-
-pub fn get_initial_camera_transform() -> Transform {
-    Transform::from_xyz(-0.5, 0.3, 4.5).with_rotation(Quat::from_axis_angle(Vec3::Y, 0.0))
-}
-
-fn get_initial_sun_transform() -> Transform {
-    let res = get_initial_camera_transform();
-    res.with_translation(res.translation + Vec3::new(0.0, 25.0, 1.75))
-        .looking_at(Vec3::ZERO, Vec3::Y)
 }
 
 fn debug_render_toggle(mut context: ResMut<DebugRenderContext>, keys: Res<ButtonInput<KeyCode>>) {
