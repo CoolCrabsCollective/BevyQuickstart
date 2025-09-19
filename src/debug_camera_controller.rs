@@ -1,3 +1,4 @@
+use crate::title_screen::GameState;
 use bevy::input::keyboard::KeyboardInput;
 use bevy::input::mouse::MouseMotion;
 use bevy::math::Vec3;
@@ -8,6 +9,12 @@ pub struct DebugCameraControllerPlugin;
 impl Plugin for DebugCameraControllerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (process_inputs, update_state, set_camera));
+        app.add_systems(
+            OnEnter(GameState::Game),
+            |mut c: ResMut<CameraControllerState>| {
+                c.enabled = true;
+            },
+        );
         app.insert_resource(CameraControllerState::new());
     }
 }
@@ -71,7 +78,7 @@ impl CameraControllerState {
             },
             position: Vec3::new(0.0, 3.0, 3.0),
             speed: 10.0,
-            enabled: true,
+            enabled: false,
         }
     }
 }

@@ -1,4 +1,3 @@
-use crate::debug_camera_controller::DebugCameraControllerPlugin;
 use crate::mesh_loader::{self, load_level, GLTFLoadConfig, MeshLoader};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
@@ -15,7 +14,6 @@ pub const CUBEMAPS: &[(&str, CompressedImageFormats)] =
 #[derive(Resource)]
 pub struct Cubemap {
     pub(crate) is_loaded: bool,
-    pub(crate) index: usize,
     pub(crate) image_handle: Handle<Image>,
 }
 
@@ -25,7 +23,6 @@ impl Plugin for SceneLoaderPlugin {
 
         app.add_systems(Update, asset_loaded);
         app.add_plugins((
-            DebugCameraControllerPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default().disabled(),
         ))
@@ -65,7 +62,6 @@ fn setup(
 
     commands.insert_resource(Cubemap {
         is_loaded: false,
-        index: 0,
         image_handle: skybox_handle.clone(),
     });
 
