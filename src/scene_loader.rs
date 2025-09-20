@@ -1,8 +1,13 @@
 use crate::mesh_loader::{self, load_level, GLTFLoadConfig, MeshLoader};
+use bevy::core_pipeline::experimental::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
-use bevy::pbr::DirectionalLightShadowMap;
+use bevy::pbr::{
+    CascadeShadowConfigBuilder, DirectionalLightShadowMap, ScreenSpaceAmbientOcclusion,
+    ScreenSpaceAmbientOcclusionQualityLevel,
+};
 use bevy::prelude::*;
+use bevy::render::camera::TemporalJitter;
 use bevy::render::render_resource::{TextureViewDescriptor, TextureViewDimension};
 use bevy_rapier3d::prelude::*;
 use bevy_water::{WaterPlugin, WaterSettings};
@@ -25,14 +30,14 @@ impl Plugin for SceneLoaderPlugin {
         app.add_systems(Update, asset_loaded);
         app.add_plugins((
             WaterPlugin,
+            TemporalAntiAliasPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default().disabled(),
         ))
         .add_systems(Update, debug_render_toggle)
-        .insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)))
-        .insert_resource(DirectionalLightShadowMap { size: 4096 })
         .insert_resource(WaterSettings {
-            height: 0.0,
+            height: -10.0,
+            edge_scale: 0.5,
             ..default()
         });
     }
@@ -51,19 +56,29 @@ fn setup(
         PlaybackSettings::LOOP,
     ));
 
+    commands.insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)));
+    commands.insert_resource(DirectionalLightShadowMap { size: 4096 });
+
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 200.0,
+        brightness: 1000.0,
         affects_lightmapped_meshes: true,
     });
-    commands.spawn(DirectionalLight {
-        color: Color::WHITE,
-        illuminance: 10000.0,
-        shadows_enabled: true,
-        affects_lightmapped_mesh_diffuse: true,
-        shadow_depth_bias: 1.0,
-        shadow_normal_bias: 1.0,
-    });
+    commands.spawn((
+        DirectionalLight {
+            color: Color::WHITE,
+            illuminance: 5000.0,
+            shadows_enabled: true,
+            affects_lightmapped_mesh_diffuse: true,
+            shadow_depth_bias: 1.0,
+            shadow_normal_bias: 1.0,
+        },
+        CascadeShadowConfigBuilder {
+            maximum_distance: 500.0,
+            ..default()
+        }
+        .build(),
+    ));
     let skybox_handle = asset_server.load(CUBEMAPS[0].0);
 
     commands.insert_resource(Cubemap {
@@ -76,6 +91,7 @@ fn setup(
         Camera {
             // renders after / on top of the main camera
             order: 1,
+            hdr: true,
             // don't clear the color while rendering this camera
             clear_color: ClearColorConfig::Default,
             ..default()
@@ -93,11 +109,18 @@ fn setup(
         DistanceFog {
             color: Color::srgb(0.25, 0.25, 0.25),
             falloff: FogFalloff::Linear {
-                start: 50.0,
+                start: 100.0,
                 end: 200.0,
             },
             ..default()
         },
+        Msaa::Off,
+        ScreenSpaceAmbientOcclusion {
+            quality_level: ScreenSpaceAmbientOcclusionQualityLevel::Ultra,
+            ..default()
+        },
+        TemporalAntiAliasing::default(),
+        TemporalJitter::default(),
     ));
 
     load_level(
