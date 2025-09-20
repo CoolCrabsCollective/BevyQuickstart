@@ -1,7 +1,9 @@
-use crate::mesh_loader::{self, load_level, GLTFLoadConfig, MeshLoader};
+use crate::mesh_loader::{self, load_gltf, GLTFLoadConfig, MeshLoader};
 use bevy::core_pipeline::experimental::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
+use bevy::input::keyboard::KeyboardInput;
+use bevy::input::ButtonState;
 use bevy::pbr::{
     CascadeShadowConfigBuilder, DirectionalLightShadowMap, ScreenSpaceAmbientOcclusion,
     ScreenSpaceAmbientOcclusionQualityLevel,
@@ -10,7 +12,7 @@ use bevy::prelude::*;
 use bevy::render::camera::TemporalJitter;
 use bevy::render::render_resource::{TextureViewDescriptor, TextureViewDimension};
 use bevy_rapier3d::prelude::*;
-use bevy_water::{WaterPlugin, WaterSettings};
+use bevy_water::{WaterPlugin, WaterQuality, WaterSettings};
 
 pub struct SceneLoaderPlugin;
 
@@ -23,11 +25,15 @@ pub struct Cubemap {
     pub(crate) image_handle: Handle<Image>,
 }
 
+#[derive(Component)]
+pub struct SceneElement;
+
 impl Plugin for SceneLoaderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup.after(mesh_loader::setup));
+        app.add_systems(Startup, setup_basic.after(mesh_loader::setup));
 
         app.add_systems(Update, asset_loaded);
+        app.add_systems(Update, scene_switcher);
         app.add_plugins((
             WaterPlugin,
             TemporalAntiAliasPlugin,
@@ -39,25 +45,79 @@ impl Plugin for SceneLoaderPlugin {
             height: -10.0,
             edge_scale: 0.5,
             ..default()
-        });
+        })
+        .insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)))
+        .insert_resource(DirectionalLightShadowMap { size: 4096 });
+    }
+}
+
+fn scene_switcher(
+    mut keyboard_input_events: EventReader<KeyboardInput>,
+    mut scene_elements: Query<(Entity, &SceneElement)>,
+    mut commands: Commands,
+    mut asset_server: ResMut<AssetServer>,
+    mut mesh_loader: ResMut<MeshLoader>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut water_level: ResMut<WaterSettings>,
+) {
+    for event in keyboard_input_events.read() {
+        if event.repeat || event.state != ButtonState::Pressed {
+            continue;
+        }
+
+        match event.key_code {
+            KeyCode::Numpad1 | KeyCode::Digit1 => {
+                for (entity, _) in scene_elements.iter_mut() {
+                    commands.entity(entity).despawn();
+                }
+                setup_basic(
+                    commands,
+                    asset_server,
+                    mesh_loader,
+                    meshes,
+                    materials,
+                    water_level,
+                );
+                return;
+            }
+            KeyCode::Numpad2 | KeyCode::Digit2 => {
+                for (entity, _) in scene_elements.iter_mut() {
+                    commands.entity(entity).despawn();
+                }
+                setup_kirby(
+                    commands,
+                    asset_server,
+                    mesh_loader,
+                    meshes,
+                    materials,
+                    water_level,
+                );
+                return;
+            }
+            _ => {}
+        }
     }
 }
 
 /// set up a simple 3D scene
-fn setup(
+fn setup_basic(
     mut commands: Commands,
     mut asset_server: ResMut<AssetServer>,
     mut mesh_loader: ResMut<MeshLoader>,
     mut _meshes: ResMut<Assets<Mesh>>,
     mut _materials: ResMut<Assets<StandardMaterial>>,
+    mut water_level: ResMut<WaterSettings>,
 ) {
+    water_level.height = -10.0;
+    water_level.edge_scale = 0.5;
+    water_level.water_quality = WaterQuality::Ultra;
+    water_level.clarity = 0.1;
     commands.spawn((
+        SceneElement,
         AudioPlayer::new(asset_server.load("test_song.ogg")),
         PlaybackSettings::LOOP,
     ));
-
-    commands.insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)));
-    commands.insert_resource(DirectionalLightShadowMap { size: 4096 });
 
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
@@ -65,6 +125,7 @@ fn setup(
         affects_lightmapped_meshes: true,
     });
     commands.spawn((
+        SceneElement,
         DirectionalLight {
             color: Color::WHITE,
             illuminance: 5000.0,
@@ -87,6 +148,7 @@ fn setup(
     });
 
     commands.spawn((
+        SceneElement,
         Camera3d::default(),
         Camera {
             // renders after / on top of the main camera
@@ -123,10 +185,116 @@ fn setup(
         TemporalJitter::default(),
     ));
 
-    load_level(
+    load_gltf(
+        String::from("test_scene.glb"),
+        GLTFLoadConfig {
+            spawn: true,
+            entity_initializer: add_scene_tag,
+            generate_collider: true,
+            collision_groups: CollisionGroups {
+                memberships: Default::default(),
+                filters: Default::default(),
+            },
+        },
+        &mut asset_server,
+        &mut mesh_loader,
+    );
+}
+
+fn add_scene_tag(commands: &mut EntityCommands) {
+    commands.insert(SceneElement);
+}
+
+fn setup_kirby(
+    mut commands: Commands,
+    mut asset_server: ResMut<AssetServer>,
+    mut mesh_loader: ResMut<MeshLoader>,
+    mut _meshes: ResMut<Assets<Mesh>>,
+    mut _materials: ResMut<Assets<StandardMaterial>>,
+    mut water_level: ResMut<WaterSettings>,
+) {
+    water_level.water_quality = WaterQuality::Basic;
+    water_level.clarity = 0.0;
+    commands.spawn((
+        SceneElement,
+        AudioPlayer::new(asset_server.load("test_song.ogg")),
+        PlaybackSettings::LOOP,
+    ));
+
+    commands.insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)));
+    commands.insert_resource(DirectionalLightShadowMap { size: 4096 });
+
+    commands.insert_resource(AmbientLight {
+        color: Color::WHITE,
+        brightness: 1000.0,
+        affects_lightmapped_meshes: true,
+    });
+    commands.spawn((
+        SceneElement,
+        DirectionalLight {
+            color: Color::WHITE,
+            illuminance: 5000.0,
+            shadows_enabled: true,
+            affects_lightmapped_mesh_diffuse: true,
+            shadow_depth_bias: 1.0,
+            shadow_normal_bias: 1.0,
+        },
+        CascadeShadowConfigBuilder {
+            maximum_distance: 500.0,
+            ..default()
+        }
+        .build(),
+    ));
+    let skybox_handle = asset_server.load(CUBEMAPS[0].0);
+
+    commands.insert_resource(Cubemap {
+        is_loaded: false,
+        image_handle: skybox_handle.clone(),
+    });
+
+    commands.spawn((
+        SceneElement,
+        Camera3d::default(),
+        Camera {
+            // renders after / on top of the main camera
+            order: 1,
+            hdr: true,
+            // don't clear the color while rendering this camera
+            clear_color: ClearColorConfig::Default,
+            ..default()
+        },
+        Projection::Perspective(PerspectiveProjection {
+            fov: 55.0f32.to_radians(),
+            ..default()
+        }),
+        Transform::from_xyz(-0.5, 0.3, 4.5).with_rotation(Quat::from_axis_angle(Vec3::Y, 0.0)),
+        Skybox {
+            image: skybox_handle.clone(),
+            brightness: 1000.0,
+            rotation: Default::default(),
+        },
+        DistanceFog {
+            color: Color::srgb(0.25, 0.25, 0.25),
+            falloff: FogFalloff::Linear {
+                start: 500.0,
+                end: 600.0,
+            },
+            ..default()
+        },
+        Msaa::Off,
+        ScreenSpaceAmbientOcclusion {
+            quality_level: ScreenSpaceAmbientOcclusionQualityLevel::Ultra,
+            ..default()
+        },
+        TemporalAntiAliasing::default(),
+        TemporalJitter::default(),
+    ));
+
+    load_gltf(
         String::from("test_scene2.glb"),
         GLTFLoadConfig {
             spawn: true,
+            entity_initializer: add_scene_tag,
             generate_collider: true,
             collision_groups: CollisionGroups {
                 memberships: Default::default(),

@@ -15,6 +15,8 @@ pub struct MeshLoaderPlugin;
 pub struct GLTFLoadConfig {
     /// Whether to spawn the loaded GLTF or not during load
     pub spawn: bool,
+    /// initializes the entity that was spawned (allows adding bundle, components or do whatever)
+    pub entity_initializer: fn(&mut EntityCommands),
     /// Whether to generate a collider for the loaded GLTF during load
     pub generate_collider: bool,
     /// CollisionGroups to use for the generated collider
@@ -41,7 +43,7 @@ pub fn setup(mut commands: Commands) {
     commands.insert_resource(MeshLoader(vec![]));
 }
 
-pub fn load_level(
+pub fn load_gltf(
     asset_path: String,
     config: GLTFLoadConfig,
     mut asset_server: &mut ResMut<AssetServer>,
@@ -102,7 +104,9 @@ fn process_loaded_gltfs(
         }
 
         if loaded_gltf.config.spawn {
-            commands.spawn(SceneRoot(first_scene_handle));
+            let mut entity_commands = commands.spawn(SceneRoot(first_scene_handle));
+            let func = loaded_gltf.config.entity_initializer;
+            func(&mut entity_commands);
         }
         loaded_gltf.processed = true;
     }
