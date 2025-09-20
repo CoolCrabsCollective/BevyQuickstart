@@ -109,8 +109,8 @@ fn setup(
         DistanceFog {
             color: Color::srgb(0.25, 0.25, 0.25),
             falloff: FogFalloff::Linear {
-                start: 100.0,
-                end: 200.0,
+                start: 500.0,
+                end: 600.0,
             },
             ..default()
         },
@@ -124,7 +124,7 @@ fn setup(
     ));
 
     load_level(
-        String::from("test_scene.glb"),
+        String::from("test_scene2.glb"),
         GLTFLoadConfig {
             spawn: true,
             generate_collider: true,
