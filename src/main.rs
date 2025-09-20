@@ -1,10 +1,12 @@
 mod debug_camera_controller;
 mod mesh_loader;
+mod object_spawner;
 mod scene_loader;
 mod title_screen;
 
 use crate::debug_camera_controller::DebugCameraControllerPlugin;
 use crate::mesh_loader::MeshLoaderPlugin;
+use crate::object_spawner::ObjectSpawnerPlugin;
 use crate::scene_loader::SceneLoaderPlugin;
 use crate::title_screen::{GameState, TitleScreenPlugin};
 use bevy::app::{App, PluginGroup};
@@ -59,6 +61,7 @@ fn main() {
     app.add_plugins(SceneLoaderPlugin);
     app.add_plugins(TitleScreenPlugin);
     app.add_plugins(DebugCameraControllerPlugin);
+    app.add_plugins(ObjectSpawnerPlugin);
     app.insert_state(GameState::TitleScreen);
 
     app.run();

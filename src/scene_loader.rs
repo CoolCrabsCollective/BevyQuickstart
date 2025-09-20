@@ -2,8 +2,6 @@ use crate::mesh_loader::{self, load_gltf, GLTFLoadConfig, MeshLoader};
 use bevy::core_pipeline::experimental::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
-use bevy::input::keyboard::KeyboardInput;
-use bevy::input::ButtonState;
 use bevy::pbr::{
     CascadeShadowConfigBuilder, DirectionalLightShadowMap, ScreenSpaceAmbientOcclusion,
     ScreenSpaceAmbientOcclusionQualityLevel,
@@ -52,7 +50,7 @@ impl Plugin for SceneLoaderPlugin {
 }
 
 fn scene_switcher(
-    mut keyboard_input_events: EventReader<KeyboardInput>,
+    input: Res<ButtonInput<KeyCode>>,
     mut scene_elements: Query<(Entity, &SceneElement)>,
     mut commands: Commands,
     mut asset_server: ResMut<AssetServer>,
@@ -61,42 +59,36 @@ fn scene_switcher(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut water_level: ResMut<WaterSettings>,
 ) {
-    for event in keyboard_input_events.read() {
-        if event.repeat || event.state != ButtonState::Pressed {
-            continue;
-        }
+    if !input.pressed(KeyCode::ControlLeft) && !input.pressed(KeyCode::ControlRight) {
+        return;
+    }
 
-        match event.key_code {
-            KeyCode::Numpad1 | KeyCode::Digit1 => {
-                for (entity, _) in scene_elements.iter_mut() {
-                    commands.entity(entity).despawn();
-                }
-                setup_basic(
-                    commands,
-                    asset_server,
-                    mesh_loader,
-                    meshes,
-                    materials,
-                    water_level,
-                );
-                return;
-            }
-            KeyCode::Numpad2 | KeyCode::Digit2 => {
-                for (entity, _) in scene_elements.iter_mut() {
-                    commands.entity(entity).despawn();
-                }
-                setup_kirby(
-                    commands,
-                    asset_server,
-                    mesh_loader,
-                    meshes,
-                    materials,
-                    water_level,
-                );
-                return;
-            }
-            _ => {}
+    if input.just_pressed(KeyCode::Numpad1) || input.just_pressed(KeyCode::Digit1) {
+        for (entity, _) in scene_elements.iter_mut() {
+            commands.entity(entity).despawn();
         }
+        setup_basic(
+            commands,
+            asset_server,
+            mesh_loader,
+            meshes,
+            materials,
+            water_level,
+        );
+        return;
+    } else if input.just_pressed(KeyCode::Numpad2) || input.just_pressed(KeyCode::Digit2) {
+        for (entity, _) in scene_elements.iter_mut() {
+            commands.entity(entity).despawn();
+        }
+        setup_kirby(
+            commands,
+            asset_server,
+            mesh_loader,
+            meshes,
+            materials,
+            water_level,
+        );
+        return;
     }
 }
 
