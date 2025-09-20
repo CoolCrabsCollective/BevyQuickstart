@@ -1,9 +1,13 @@
+use bevy::ecs::schedule::ScheduleLabel;
+use bevy::platform::collections::HashSet;
 use bevy::{
     gltf::{Gltf, GltfMesh, GltfNode},
     prelude::*,
     render::mesh::{Indices, VertexAttributeValues},
 };
+use bevy_rapier3d::plugin::PhysicsSet;
 use bevy_rapier3d::prelude::{Collider, CollisionGroups};
+use std::marker::PhantomData;
 
 pub struct MeshLoaderPlugin;
 
@@ -17,10 +21,21 @@ pub struct GLTFLoadConfig {
     pub spawn: bool,
     /// initializes the entity that was spawned (allows adding bundle, components or do whatever)
     pub entity_initializer: fn(&mut EntityCommands),
-    /// Whether to generate a collider for the loaded GLTF during load
-    pub generate_collider: bool,
+    /// Whether to generate a (static, non rigid body) collider for the loaded GLTF during load
+    pub generate_static_collider: bool,
     /// CollisionGroups to use for the generated collider
     pub collision_groups: CollisionGroups,
+}
+
+impl Default for GLTFLoadConfig {
+    fn default() -> Self {
+        Self {
+            spawn: true,
+            entity_initializer: |commands| {},
+            generate_static_collider: false,
+            collision_groups: CollisionGroups::default(),
+        }
+    }
 }
 
 pub struct LoadedGLTF {
@@ -80,7 +95,7 @@ fn process_loaded_gltfs(
         for (name, node_handle) in &gltf.named_nodes {
             println!("{}", name);
 
-            if loaded_gltf.config.generate_collider {
+            if loaded_gltf.config.generate_static_collider {
                 info!("Generating collider from level object: {name:?}");
                 if let (Some(mesh), Some(material_handle), Some(transform)) = (
                     get_mesh_from_gltf_node(node_handle, &meshes, &gltf_meshes, &nodes),

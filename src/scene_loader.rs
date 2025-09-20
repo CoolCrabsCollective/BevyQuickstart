@@ -182,7 +182,7 @@ fn setup_basic(
         GLTFLoadConfig {
             spawn: true,
             entity_initializer: add_scene_tag,
-            generate_collider: true,
+            generate_static_collider: true,
             collision_groups: CollisionGroups {
                 memberships: Default::default(),
                 filters: Default::default(),
@@ -287,7 +287,7 @@ fn setup_kirby(
         GLTFLoadConfig {
             spawn: true,
             entity_initializer: add_scene_tag,
-            generate_collider: true,
+            generate_static_collider: true,
             collision_groups: CollisionGroups {
                 memberships: Default::default(),
                 filters: Default::default(),

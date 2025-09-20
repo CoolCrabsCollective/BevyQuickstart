@@ -4,7 +4,7 @@ use bevy::app::{App, Plugin, Update};
 use bevy::asset::AssetServer;
 use bevy::input::ButtonInput;
 use bevy::prelude::{EntityCommands, KeyCode, Res, ResMut, Transform};
-use bevy_rapier3d::geometry::CollisionGroups;
+use bevy::utils::default;
 
 pub struct ObjectSpawnerPlugin;
 
@@ -36,13 +36,8 @@ fn spawn_fly(mut asset_server: ResMut<AssetServer>, mut mesh_loader: ResMut<Mesh
     load_gltf(
         String::from("fruit_fly.glb"),
         GLTFLoadConfig {
-            spawn: true,
             entity_initializer: add_object_tag,
-            generate_collider: true,
-            collision_groups: CollisionGroups {
-                memberships: Default::default(),
-                filters: Default::default(),
-            },
+            ..default()
         },
         &mut asset_server,
         &mut mesh_loader,
@@ -53,13 +48,8 @@ fn spawn_shrimp(mut asset_server: ResMut<AssetServer>, mut mesh_loader: ResMut<M
     load_gltf(
         String::from("pistol_shrimp.glb"),
         GLTFLoadConfig {
-            spawn: true,
             entity_initializer: add_object_tag,
-            generate_collider: true,
-            collision_groups: CollisionGroups {
-                memberships: Default::default(),
-                filters: Default::default(),
-            },
+            ..default()
         },
         &mut asset_server,
         &mut mesh_loader,
@@ -72,4 +62,6 @@ fn add_object_tag(commands: &mut EntityCommands) {
         10.0,
         rand::random::<f32>() * 100.0 - 50.0,
     ));
+    //.insert(RigidBodyBuilder::new(RigidBodyType::Dynamic).build())
+    //.insert(ColliderBuilder::cuboid(1.0, 1.0, 1.0).build());
 }
