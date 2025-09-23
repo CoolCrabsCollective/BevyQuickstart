@@ -1,4 +1,5 @@
 use crate::mesh_loader::{self, load_gltf, GLTFLoadConfig, MeshLoader};
+use bevy::core_pipeline::bloom::Bloom;
 use bevy::core_pipeline::experimental::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
@@ -161,7 +162,7 @@ fn setup_basic(
             rotation: Default::default(),
         },
         DistanceFog {
-            color: Color::srgb(0.25, 0.25, 0.25),
+            color: Color::srgb(5.0, 0.25, 0.25),
             falloff: FogFalloff::Linear {
                 start: 500.0,
                 end: 600.0,
@@ -175,6 +176,7 @@ fn setup_basic(
         },
         TemporalAntiAliasing::default(),
         TemporalJitter::default(),
+        Bloom::default(),
     ));
 
     load_gltf(
