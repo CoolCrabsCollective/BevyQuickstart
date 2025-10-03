@@ -84,7 +84,7 @@ fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
                     ..default()
                 },
                 TextColor(Color::srgba(0.9, 0.9, 0.9, 1.0)),
-                TextLayout::new_with_justify(JustifyText::Center),
+                TextLayout::new_with_justify(Justify::Center),
                 Node {
                     position_type: PositionType::Absolute,
                     bottom: Val::Px(5.0),

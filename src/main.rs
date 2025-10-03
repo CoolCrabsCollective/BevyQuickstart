@@ -37,12 +37,12 @@ fn main() {
                 primary_window: Some(Window {
                     fit_canvas_to_parent: true,
                     title: "Bevy Quickstart Game".to_string(),
-                    cursor_options: CursorOptions {
-                        visible: true,
-                        // note this bug: https://github.com/bevyengine/bevy/issues/16237
-                        grab_mode: CursorGrabMode::None,
-                        ..default()
-                    },
+                    ..default()
+                }),
+                primary_cursor_options: Some(CursorOptions {
+                    visible: true,
+                    // note this bug: https://github.com/bevyengine/bevy/issues/16237
+                    grab_mode: CursorGrabMode::None,
                     ..default()
                 }),
                 ..default()
