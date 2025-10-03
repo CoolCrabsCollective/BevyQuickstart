@@ -1,11 +1,12 @@
 use crate::mesh_loader::{self, load_gltf, GLTFLoadConfig, MeshLoader};
 use bevy::core_pipeline::bloom::Bloom;
 use bevy::core_pipeline::experimental::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
+use bevy::core_pipeline::tonemapping::Tonemapping;
 use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
 use bevy::pbr::{
-    CascadeShadowConfigBuilder, DirectionalLightShadowMap, ScreenSpaceAmbientOcclusion,
-    ScreenSpaceAmbientOcclusionQualityLevel,
+    CascadeShadowConfigBuilder, DirectionalLightShadowMap, FogVolume, ScreenSpaceAmbientOcclusion,
+    ScreenSpaceAmbientOcclusionQualityLevel, VolumetricFog, VolumetricLight,
 };
 use bevy::prelude::*;
 use bevy::render::camera::TemporalJitter;
@@ -46,7 +47,8 @@ impl Plugin for SceneLoaderPlugin {
             ..default()
         })
         .insert_resource(ClearColor(Color::srgb(0.3, 0.6, 0.9)))
-        .insert_resource(DirectionalLightShadowMap { size: 4096 });
+        .insert_resource(DirectionalLightShadowMap { size: 4096 })
+        .insert_resource(AmbientLight::NONE);
     }
 }
 
@@ -119,14 +121,16 @@ fn setup_basic(
     });
     commands.spawn((
         SceneElement,
+        Transform::from_xyz(-1.8, 3.9, -2.7).looking_at(Vec3::ZERO, Vec3::Y),
         DirectionalLight {
             color: Color::WHITE,
-            illuminance: 5000.0,
+            illuminance: 50000.0,
             shadows_enabled: true,
             affects_lightmapped_mesh_diffuse: true,
             shadow_depth_bias: 1.0,
             shadow_normal_bias: 1.0,
         },
+        VolumetricLight,
         CascadeShadowConfigBuilder {
             maximum_distance: 500.0,
             ..default()
@@ -151,6 +155,7 @@ fn setup_basic(
             clear_color: ClearColorConfig::Default,
             ..default()
         },
+        Tonemapping::TonyMcMapface,
         Projection::Perspective(PerspectiveProjection {
             fov: 55.0f32.to_radians(),
             ..default()
@@ -158,17 +163,18 @@ fn setup_basic(
         Transform::from_xyz(-0.5, 0.3, 4.5).with_rotation(Quat::from_axis_angle(Vec3::Y, 0.0)),
         Skybox {
             image: skybox_handle.clone(),
-            brightness: 1000.0,
+            brightness: 10000.0,
             rotation: Default::default(),
         },
-        DistanceFog {
+        /*DistanceFog {
             color: Color::srgb(5.0, 0.25, 0.25),
             falloff: FogFalloff::Linear {
                 start: 500.0,
                 end: 600.0,
             },
             ..default()
-        },
+        },*/
+        VolumetricFog { ..default() },
         Msaa::Off,
         ScreenSpaceAmbientOcclusion {
             quality_level: ScreenSpaceAmbientOcclusionQualityLevel::Ultra,
@@ -177,6 +183,11 @@ fn setup_basic(
         TemporalAntiAliasing::default(),
         TemporalJitter::default(),
         Bloom::default(),
+    ));
+
+    commands.spawn((
+        FogVolume::default(),
+        Transform::from_scale(Vec3::splat(2000.0)),
     ));
 
     load_gltf(
