@@ -1,14 +1,17 @@
 mod debug_camera_controller;
 mod mesh_loader;
 mod object_spawner;
+mod particle;
 mod scene_loader;
 mod title_screen;
+mod ui;
 
 use crate::debug_camera_controller::DebugCameraControllerPlugin;
 use crate::mesh_loader::MeshLoaderPlugin;
 use crate::object_spawner::ObjectSpawnerPlugin;
 use crate::scene_loader::SceneLoaderPlugin;
 use crate::title_screen::{GameState, TitleScreenPlugin};
+use crate::ui::interactive_button::InteractiveButtonPlugin;
 use bevy::app::{App, PluginGroup};
 use bevy::asset::AssetMetaCheck;
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSamplerDescriptor};
@@ -57,6 +60,7 @@ fn main() {
                 ..default()
             }),
     );
+    app.add_plugins(InteractiveButtonPlugin);
     app.add_plugins(MeshLoaderPlugin);
     app.add_plugins(SceneLoaderPlugin);
     app.add_plugins(TitleScreenPlugin);

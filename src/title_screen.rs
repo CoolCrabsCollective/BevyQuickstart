@@ -1,3 +1,4 @@
+use crate::ui::interactive_button::InteractiveButton;
 use bevy::prelude::*;
 
 pub struct TitleScreenPlugin;
@@ -53,7 +54,6 @@ fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
                     Node {
                         width: Val::Px(250.0),
                         height: Val::Px(65.0),
-                        border: UiRect::all(Val::Px(5.0)),
                         top: Val::Px(200.0),
                         // horizontally center child text
                         justify_content: JustifyContent::Center,
@@ -61,6 +61,8 @@ fn on_enter(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
+                    BorderRadius::all(Val::Percent(50.0)),
+                    InteractiveButton::default(),
                     BackgroundColor::from(Color::srgba(0.2, 0.2, 0.2, 1.0)),
                 ))
                 .with_children(|parent| {
