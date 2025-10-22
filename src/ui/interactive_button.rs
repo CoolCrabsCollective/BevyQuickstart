@@ -3,8 +3,8 @@ use bevy::app::{App, Plugin, Update};
 use bevy::color::{Color, Luminance, Srgba};
 use bevy::math::{Vec2, Vec3};
 use bevy::prelude::{
-    default, BackgroundColor, BorderColor, Changed, Children, Component, ImageNode, Interaction,
-    Query, Text, TextColor, Without,
+    BackgroundColor, BorderColor, Changed, Children, Component, ImageNode, Interaction, Query,
+    Text, TextColor, Without, default,
 };
 
 #[derive(Component)]
