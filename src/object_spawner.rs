@@ -1,4 +1,4 @@
-use crate::mesh_loader::{load_gltf, GLTFLoadConfig, MeshLoader};
+use crate::mesh_loader::{GLTFLoadConfig, MeshLoader, load_gltf};
 use crate::scene_loader::SceneElement;
 use bevy::app::{App, Plugin, Update};
 use bevy::asset::AssetServer;
