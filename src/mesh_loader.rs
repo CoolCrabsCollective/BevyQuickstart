@@ -74,8 +74,7 @@ pub fn load_gltf(
 #[allow(clippy::too_many_arguments)]
 fn process_loaded_gltfs(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    meshes: ResMut<Assets<Mesh>>,
     gltf_meshes: Res<Assets<GltfMesh>>,
     nodes: Res<Assets<GltfNode>>,
     mut mesh_loader: ResMut<MeshLoader>,
