@@ -37,14 +37,10 @@ jobs:
     name: cargo fmt
     runs-on: ubuntu-latest
     steps:
-      - name: Setup environment
-        uses: qoomon/actions--parallel-steps@v1
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          steps: |
-            - uses: actions/checkout@v4
-            - uses: actions-rust-lang/setup-rust-toolchain@v1
-              with:
-                components: rustfmt
-                rustflags: ''
+          components: rustfmt
+          rustflags: ''
       - name: Rustfmt Check
         uses: actions-rust-lang/rustfmt@v1
