@@ -15,12 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Linux dependencies
-        shell: bash
-        if: ${{ runner.os == 'linux' }}
-        run: >
-          sudo apt-get update
-          
-          sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+        uses: tecolicom/actions-use-apt-tools@v1
+        with:
+          tools: libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: actions/checkout@v4
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
