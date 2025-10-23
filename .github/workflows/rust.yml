@@ -14,14 +14,24 @@ jobs:
     name: cargo build
     runs-on: ubuntu-latest
     steps:
-      - name: Install Linux dependencies
-        uses: tecolicom/actions-use-apt-tools@v1
+      - name: Disable package database updates
+        run: sudo rm /var/lib/man-db/auto-update
+
+      - name: Setup environment
+        uses: qoomon/actions--parallel-steps@v1
         with:
-          tools: libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
-      - uses: actions/checkout@v4
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          rustflags: ''
+          steps: |
+            - name: Install Linux dependencies
+              uses: tecolicom/actions-use-apt-tools@v1
+              with:
+                tools: libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup rust toolchain
+              uses: actions-rust-lang/setup-rust-toolchain@v1
+              with:
+                rustflags: ''
+
       - name: Build
         run: cargo build --verbose
       - name: Run tests
@@ -31,11 +41,14 @@ jobs:
     name: cargo fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      # Ensure rustfmt is installed and setup problem matcher
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Setup environment
+        uses: qoomon/actions--parallel-steps@v1
         with:
-          components: rustfmt
-          rustflags: ''
+          steps: |
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
+              with:
+                components: rustfmt
+                rustflags: ''
       - name: Rustfmt Check
         uses: actions-rust-lang/rustfmt@v1
