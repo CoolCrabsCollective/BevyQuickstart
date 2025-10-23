@@ -35,19 +35,19 @@ pub fn update_particle(
     time: Res<Time>,
 ) {
     let (camera_transform) = camera_transform_query.single().unwrap();
-    let δ = time.delta().as_secs_f32();
+    let delta = time.delta().as_secs_f32();
     for (mut transform, particle, mat) in query.iter_mut() {
         let lookat_pos = transform.translation + camera_transform.forward() * 1.0;
         transform.look_at(lookat_pos, camera_transform.up());
 
         let forward = transform.forward();
         let angle_of_rotation: Angle =
-            Angle::from_degrees((δ * particle.angular_velocity).to_degrees());
+            Angle::from_degrees((delta * particle.angular_velocity).to_degrees());
         transform.rotate_axis(-forward, angle_of_rotation.to_radians());
         let scale_func = &particle.scale_function;
         let s = scale_func(particle.lifetime.elapsed_secs());
         transform.scale = Vec3::new(s, s, s);
-        transform.translation += δ * particle.velocity;
+        transform.translation += delta * particle.velocity;
 
         let fraction = particle.lifetime.fraction();
         let op_func = &particle.opacity_function;
