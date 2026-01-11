@@ -1,6 +1,6 @@
-use crate::mesh_loader::{self, load_gltf, GLTFLoadConfig, MeshLoader};
-use bevy::anti_alias::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
+use crate::mesh_loader::{self, GLTFLoadConfig, MeshLoader, load_gltf};
 use bevy::core_pipeline::Skybox;
+use bevy::anti_alias::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::image::CompressedImageFormats;
 use bevy::light::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
@@ -53,11 +53,9 @@ fn scene_switcher(
     input: Res<ButtonInput<KeyCode>>,
     mut scene_elements: Query<(Entity, &SceneElement)>,
     mut commands: Commands,
-    mut asset_server: ResMut<AssetServer>,
-    mut mesh_loader: ResMut<MeshLoader>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut water_level: ResMut<WaterSettings>,
+    asset_server: ResMut<AssetServer>,
+    mesh_loader: ResMut<MeshLoader>,
+    water_level: ResMut<WaterSettings>,
 ) {
     if !input.pressed(KeyCode::ControlLeft) && !input.pressed(KeyCode::ControlRight) {
         return;
@@ -67,27 +65,13 @@ fn scene_switcher(
         for (entity, _) in scene_elements.iter_mut() {
             commands.entity(entity).despawn();
         }
-        setup_basic(
-            commands,
-            asset_server,
-            mesh_loader,
-            meshes,
-            materials,
-            water_level,
-        );
+        setup_basic(commands, asset_server, mesh_loader, water_level);
         return;
     } else if input.just_pressed(KeyCode::Numpad2) || input.just_pressed(KeyCode::Digit2) {
         for (entity, _) in scene_elements.iter_mut() {
             commands.entity(entity).despawn();
         }
-        setup_kirby(
-            commands,
-            asset_server,
-            mesh_loader,
-            meshes,
-            materials,
-            water_level,
-        );
+        setup_kirby(commands, asset_server, mesh_loader, water_level);
         return;
     }
 }
@@ -97,8 +81,6 @@ fn setup_basic(
     mut commands: Commands,
     mut asset_server: ResMut<AssetServer>,
     mut mesh_loader: ResMut<MeshLoader>,
-    mut _meshes: ResMut<Assets<Mesh>>,
-    mut _materials: ResMut<Assets<StandardMaterial>>,
     mut water_level: ResMut<WaterSettings>,
 ) {
     water_level.height = -10.0;
@@ -202,8 +184,6 @@ fn setup_kirby(
     mut commands: Commands,
     mut asset_server: ResMut<AssetServer>,
     mut mesh_loader: ResMut<MeshLoader>,
-    mut _meshes: ResMut<Assets<Mesh>>,
-    mut _materials: ResMut<Assets<StandardMaterial>>,
     mut water_level: ResMut<WaterSettings>,
 ) {
     water_level.water_quality = WaterQuality::Basic;
