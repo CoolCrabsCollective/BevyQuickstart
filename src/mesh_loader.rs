@@ -2,12 +2,13 @@ use bevy::ecs::schedule::ScheduleLabel;
 use bevy::platform::collections::HashSet;
 use bevy::{
     gltf::{Gltf, GltfMesh, GltfNode},
+    mesh::{Indices, VertexAttributeValues},
     prelude::*,
-    render::mesh::{Indices, VertexAttributeValues},
 };
 use bevy_rapier3d::plugin::PhysicsSet;
 use bevy_rapier3d::prelude::{Collider, CollisionGroups};
 use std::marker::PhantomData;
+use std::ops::Mul;
 
 pub struct MeshLoaderPlugin;
 
@@ -198,7 +199,7 @@ fn get_collider_from_mesh(
         .iter()
         .map(|v| {
             let p = Vec4::new(v[0], v[1], v[2], 1.0);
-            let p_transformed = transform.compute_matrix() * p;
+            let p_transformed = transform.to_matrix() * p;
             Vec3::new(
                 p_transformed.x / p_transformed.w,
                 p_transformed.y / p_transformed.w,

@@ -176,11 +176,11 @@ fn interact(
         }
 
         if bor_color.is_some() {
-            bor_color.unwrap().0 = match *interaction {
+            bor_color.unwrap().set_all(match *interaction {
                 Interaction::Pressed => button.pressed_border_color,
                 Interaction::Hovered => button.hover_border_color,
                 Interaction::None => button.regular_border_color,
-            };
+            });
         }
 
         if img.is_some() {

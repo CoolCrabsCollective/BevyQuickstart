@@ -1,15 +1,14 @@
 use crate::mesh_loader::{self, GLTFLoadConfig, MeshLoader, load_gltf};
+use bevy::anti_alias::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::core_pipeline::Skybox;
-use bevy::core_pipeline::bloom::Bloom;
-use bevy::core_pipeline::experimental::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
 use bevy::image::CompressedImageFormats;
-use bevy::pbr::{
-    CascadeShadowConfigBuilder, DirectionalLightShadowMap, ScreenSpaceAmbientOcclusion,
-    ScreenSpaceAmbientOcclusionQualityLevel,
-};
+use bevy::light::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
+use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
+use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
 use bevy::render::camera::TemporalJitter;
 use bevy::render::render_resource::{TextureViewDescriptor, TextureViewDimension};
+use bevy::render::view::Hdr;
 use bevy_rapier3d::prelude::*;
 use bevy_water::{WaterPlugin, WaterQuality, WaterSettings};
 
@@ -35,7 +34,6 @@ impl Plugin for SceneLoaderPlugin {
         app.add_systems(Update, scene_switcher);
         app.add_plugins((
             WaterPlugin,
-            TemporalAntiAliasPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default().disabled(),
         ))
@@ -128,11 +126,11 @@ fn setup_basic(
         Camera {
             // renders after / on top of the main camera
             order: 1,
-            hdr: true,
             // don't clear the color while rendering this camera
             clear_color: ClearColorConfig::Default,
             ..default()
         },
+        Hdr,
         Projection::Perspective(PerspectiveProjection {
             fov: 55.0f32.to_radians(),
             ..default()
@@ -232,11 +230,11 @@ fn setup_kirby(
         Camera {
             // renders after / on top of the main camera
             order: 1,
-            hdr: true,
             // don't clear the color while rendering this camera
             clear_color: ClearColorConfig::Default,
             ..default()
         },
+        Hdr,
         Projection::Perspective(PerspectiveProjection {
             fov: 55.0f32.to_radians(),
             ..default()

@@ -6,7 +6,6 @@ use bevy::prelude::{
     Camera3d, Color, Commands, Component, Entity, Query, Res, ResMut, Time, Timer, Transform, With,
     Without,
 };
-use bevy::text::cosmic_text::Angle;
 
 pub struct ParticlePlugin;
 
@@ -34,16 +33,15 @@ pub fn update_particle(
     camera_transform_query: Query<&Transform, With<Camera3d>>,
     time: Res<Time>,
 ) {
-    let (camera_transform) = camera_transform_query.single().unwrap();
+    let camera_transform = camera_transform_query.single().unwrap();
     let delta = time.delta().as_secs_f32();
     for (mut transform, particle, mat) in query.iter_mut() {
         let lookat_pos = transform.translation + camera_transform.forward() * 1.0;
         transform.look_at(lookat_pos, camera_transform.up());
 
         let forward = transform.forward();
-        let angle_of_rotation: Angle =
-            Angle::from_degrees((delta * particle.angular_velocity).to_degrees());
-        transform.rotate_axis(-forward, angle_of_rotation.to_radians());
+        let angle_of_rotation = delta * particle.angular_velocity;
+        transform.rotate_axis(-forward, angle_of_rotation);
         let scale_func = &particle.scale_function;
         let s = scale_func(particle.lifetime.elapsed_secs());
         transform.scale = Vec3::new(s, s, s);
