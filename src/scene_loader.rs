@@ -1,6 +1,6 @@
 use crate::mesh_loader::{self, GLTFLoadConfig, MeshLoader, load_gltf};
-use bevy::core_pipeline::Skybox;
 use bevy::anti_alias::taa::{TemporalAntiAliasPlugin, TemporalAntiAliasing};
+use bevy::core_pipeline::Skybox;
 use bevy::image::CompressedImageFormats;
 use bevy::light::{CascadeShadowConfigBuilder, DirectionalLightShadowMap};
 use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
@@ -34,7 +34,6 @@ impl Plugin for SceneLoaderPlugin {
         app.add_systems(Update, scene_switcher);
         app.add_plugins((
             WaterPlugin,
-            TemporalAntiAliasPlugin,
             RapierPhysicsPlugin::<NoUserData>::default(),
             RapierDebugRenderPlugin::default().disabled(),
         ))

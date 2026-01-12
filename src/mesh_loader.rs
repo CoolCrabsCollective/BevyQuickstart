@@ -2,8 +2,8 @@ use bevy::ecs::schedule::ScheduleLabel;
 use bevy::platform::collections::HashSet;
 use bevy::{
     gltf::{Gltf, GltfMesh, GltfNode},
+    mesh::{Indices, VertexAttributeValues},
     prelude::*,
-    render::mesh::{Indices, VertexAttributeValues},
 };
 use bevy_rapier3d::plugin::PhysicsSet;
 use bevy_rapier3d::prelude::{Collider, CollisionGroups};
